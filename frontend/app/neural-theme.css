@@ -1,0 +1,277 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   CityPulse OS — Emergency Neural Command Grid
+   Meaning-based state colors · layered depth · no generic glassmorphism
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+html.theme-neural {
+  color-scheme: dark;
+}
+
+/* ─── Neural background layers ─────────────────────────────────────────────── */
+.neural-bg-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.neural-bg-void {
+  background: var(--base-void);
+}
+
+.neural-bg-deep {
+  background: radial-gradient(ellipse 120% 80% at 50% 0%, var(--base-deep) 0%, transparent 55%);
+  opacity: 0.95;
+}
+
+.neural-bg-elevated {
+  background: radial-gradient(ellipse 70% 50% at 80% 100%, color-mix(in srgb, var(--base-elevated) 85%, transparent) 0%, transparent 60%);
+  opacity: 0.7;
+}
+
+.neural-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 45%, black 15%, transparent 72%);
+  opacity: 0.55;
+}
+
+.neural-pulse-node {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: var(--pulse-color);
+  box-shadow: 0 0 20px 4px color-mix(in srgb, var(--pulse-color) 45%, transparent);
+}
+
+.neural-sweep {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 28%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--state-intelligence) 6%, transparent),
+    transparent
+  );
+  opacity: 0.6;
+}
+
+/* ─── Panels: matte depth, not glass blur stacks ───────────────────────────── */
+html.theme-neural .cp-panel,
+html.theme-neural .glass-card,
+html.theme-neural .holo-panel {
+  background: var(--surface-raised) !important;
+  border: 1px solid var(--surface-border) !important;
+  backdrop-filter: none !important;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--state-intelligence) 4%, transparent) inset,
+    0 16px 48px -28px rgba(0, 0, 0, 0.65) !important;
+}
+
+html.theme-neural .cp-panel-accent {
+  border-left: 3px solid var(--state-intelligence) !important;
+}
+
+html.theme-neural .cp-app-nav {
+  background: var(--surface-raised);
+  border-color: var(--surface-border);
+  box-shadow: 0 8px 32px -16px rgba(0, 0, 0, 0.5);
+}
+
+/* ─── Brand & CTAs → Command + Intelligence ────────────────────────────────── */
+html.theme-neural .cp-logo-mark {
+  background: linear-gradient(135deg, var(--state-command) 0%, var(--state-intelligence) 100%);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--state-command) 35%, transparent);
+}
+
+html.theme-neural .cp-brand {
+  color: var(--state-command);
+  opacity: 1;
+}
+
+html.theme-neural .cp-cta-primary,
+html.theme-neural .cp-btn-primary {
+  background: linear-gradient(135deg, var(--state-intelligence) 0%, var(--state-command) 100%) !important;
+  color: #f0f4ff !important;
+  box-shadow: 0 8px 28px -6px color-mix(in srgb, var(--state-intelligence) 50%, transparent);
+}
+
+html.theme-neural .cp-cta-outline {
+  border-color: color-mix(in srgb, var(--state-intelligence) 40%, transparent);
+  color: var(--foreground);
+}
+
+html.theme-neural .cp-cta-outline:hover {
+  background: color-mix(in srgb, var(--state-intelligence) 8%, transparent);
+  border-color: var(--state-intelligence);
+}
+
+/* ─── Semantic status badges ───────────────────────────────────────────────── */
+html.theme-neural .cp-badge.pending {
+  background: color-mix(in srgb, var(--state-disruption) 14%, transparent);
+  color: var(--state-disruption);
+  border-color: color-mix(in srgb, var(--state-disruption) 35%, transparent);
+}
+
+html.theme-neural .cp-badge.progress {
+  background: color-mix(in srgb, var(--state-intelligence) 14%, transparent);
+  color: var(--state-intelligence);
+  border-color: color-mix(in srgb, var(--state-intelligence) 35%, transparent);
+}
+
+html.theme-neural .cp-badge.resolved {
+  background: color-mix(in srgb, var(--state-stable) 12%, transparent);
+  color: var(--state-stable);
+  border-color: color-mix(in srgb, var(--state-stable) 35%, transparent);
+}
+
+html.theme-neural .cp-badge.crisis {
+  background: color-mix(in srgb, var(--state-crisis) 14%, transparent);
+  color: var(--state-crisis);
+  border-color: color-mix(in srgb, var(--state-crisis) 40%, transparent);
+}
+
+html.theme-neural .cp-badge.monitoring {
+  background: color-mix(in srgb, var(--state-monitoring) 12%, transparent);
+  color: var(--state-monitoring);
+  border-color: color-mix(in srgb, var(--state-monitoring) 35%, transparent);
+}
+
+/* Role badges → semantic mapping */
+html.theme-neural .cp-role-badge.citizen {
+  color: var(--state-monitoring);
+  border-color: color-mix(in srgb, var(--state-monitoring) 40%, transparent);
+  background: color-mix(in srgb, var(--state-monitoring) 8%, transparent);
+}
+
+html.theme-neural .cp-role-badge.police {
+  color: var(--state-intelligence);
+  border-color: color-mix(in srgb, var(--state-intelligence) 40%, transparent);
+  background: color-mix(in srgb, var(--state-intelligence) 8%, transparent);
+}
+
+html.theme-neural .cp-role-badge.fire {
+  color: var(--state-crisis);
+  border-color: color-mix(in srgb, var(--state-crisis) 40%, transparent);
+  background: color-mix(in srgb, var(--state-crisis) 8%, transparent);
+}
+
+html.theme-neural .cp-role-badge.medical {
+  color: var(--state-disruption);
+  border-color: color-mix(in srgb, var(--state-disruption) 40%, transparent);
+  background: color-mix(in srgb, var(--state-disruption) 8%, transparent);
+}
+
+html.theme-neural .cp-role-badge.admin {
+  color: var(--state-command);
+  border-color: color-mix(in srgb, var(--state-command) 40%, transparent);
+  background: color-mix(in srgb, var(--state-command) 8%, transparent);
+}
+
+/* Chips & inputs */
+html.theme-neural .cp-chip.active {
+  border-color: color-mix(in srgb, var(--state-intelligence) 50%, transparent);
+  background: color-mix(in srgb, var(--state-intelligence) 12%, transparent);
+  color: var(--state-intelligence);
+}
+
+html.theme-neural .cp-input:focus,
+html.theme-neural .cp-textarea:focus,
+html.theme-neural .cp-select:focus {
+  border-color: var(--state-intelligence) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--state-intelligence) 20%, transparent) !important;
+}
+
+html.theme-neural input:focus {
+  border-color: color-mix(in srgb, var(--state-intelligence) 55%, transparent) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--state-intelligence) 18%, transparent) !important;
+  background: var(--base-deep) !important;
+}
+
+/* Hide generic tactical HUD; neural bg replaces */
+html.theme-neural .pastel-hud-wrapper,
+html.theme-neural .scanline-overlay,
+html.theme-neural .radar-pulse,
+html.theme-neural .rotating-ring,
+html.theme-neural .emergency-indicator,
+html.theme-neural .reactive-signal,
+html.theme-neural .galaxy-bg {
+  display: none !important;
+}
+
+html.theme-neural .grid-overlay,
+html.theme-neural .cp-app-shell::before {
+  display: none !important;
+}
+
+html.theme-neural .cp-card-corner {
+  border-color: color-mix(in srgb, var(--state-intelligence) 25%, transparent);
+}
+
+html.theme-neural .scroll-indicator-dot.active {
+  background: var(--state-intelligence);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--state-intelligence) 50%, transparent);
+}
+
+html.theme-neural .cursor-dot {
+  background: var(--state-command);
+}
+
+html.theme-neural .cursor-ring {
+  border-color: color-mix(in srgb, var(--state-command) 55%, transparent);
+}
+
+/* List items — elevated surface */
+html.theme-neural .cp-list-item {
+  background: var(--surface-sunken);
+  border-color: var(--surface-border);
+  box-shadow: none;
+}
+
+html.theme-neural .cp-list-item:hover {
+  border-color: color-mix(in srgb, var(--state-intelligence) 30%, transparent);
+  background: var(--surface-raised);
+  box-shadow: 0 4px 20px -12px rgba(0, 0, 0, 0.5);
+}
+
+html.theme-neural .cp-stat-tile {
+  background: var(--surface-raised);
+  border-color: var(--surface-border);
+}
+
+html.theme-neural .cp-tool-sidebar {
+  background: var(--surface-raised);
+  border-color: var(--surface-border);
+  backdrop-filter: none;
+}
+
+html.theme-neural .cp-tool-nav-item.active {
+  color: var(--state-intelligence);
+  background: color-mix(in srgb, var(--state-intelligence) 12%, transparent);
+  border-color: color-mix(in srgb, var(--state-intelligence) 30%, transparent);
+}
+
+/* State utility classes for inline use */
+.state-crisis { color: var(--state-crisis); }
+.state-disruption { color: var(--state-disruption); }
+.state-monitoring { color: var(--state-monitoring); }
+.state-stable { color: var(--state-stable); }
+.state-intelligence { color: var(--state-intelligence); }
+.state-command { color: var(--state-command); }
+
+.bg-state-crisis { background: color-mix(in srgb, var(--state-crisis) 12%, transparent); }
+.bg-state-stable { background: color-mix(in srgb, var(--state-stable) 12%, transparent); }
+.bg-state-intelligence { background: color-mix(in srgb, var(--state-intelligence) 12%, transparent); }
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-neural .neural-pulse-node,
+  html.theme-neural .neural-sweep {
+    animation: none !important;
+  }
+}

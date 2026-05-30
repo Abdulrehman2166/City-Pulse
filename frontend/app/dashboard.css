@@ -1,0 +1,588 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   CityPulse OS — Shared App / Dashboard UI
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ─── App shell ─────────────────────────────────────────────────────────────── */
+.cp-app-shell {
+  position: relative;
+  min-height: 100vh;
+  color: var(--foreground);
+  background: var(--base-fog);
+  overflow-x: hidden;
+}
+
+.cp-app-shell::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 75%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cp-app-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(180deg, transparent 0%, oklch(0.08 0.01 260 / 0.45) 100%);
+}
+
+.cp-app-content {
+  position: relative;
+  z-index: 10;
+}
+
+/* Subtle scanline — less aggressive than default */
+.cp-app-shell .scanline-overlay {
+  opacity: 0.35;
+  animation-duration: 14s;
+}
+
+/* ─── Top navigation ────────────────────────────────────────────────────────── */
+.cp-app-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 1.25rem;
+  margin: -0.5rem -0.5rem 1.75rem;
+  border-radius: 1.25rem;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.cp-app-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--foreground);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.cp-app-nav-brand:hover {
+  opacity: 0.9;
+}
+
+.cp-app-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.cp-app-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+
+.cp-app-nav-link:hover {
+  color: var(--foreground);
+  background: oklch(1 0 0 / 0.04);
+  border-color: var(--glass-border);
+}
+
+.cp-app-nav-link.active {
+  color: var(--state-intelligence);
+  background: color-mix(in srgb, var(--state-intelligence) 10%, white);
+  border-color: color-mix(in srgb, var(--state-intelligence) 25%, transparent);
+}
+
+.cp-app-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cp-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 1px solid var(--glass-border);
+  background: oklch(1 0 0 / 0.03);
+}
+
+.cp-role-badge.citizen { color: var(--state-watch); border-color: color-mix(in srgb, var(--state-watch) 35%, transparent); background: color-mix(in srgb, var(--state-watch) 12%, white); }
+.cp-role-badge.police { color: var(--state-intelligence); border-color: color-mix(in srgb, var(--state-intelligence) 30%, transparent); background: color-mix(in srgb, var(--state-intelligence) 10%, white); }
+.cp-role-badge.fire { color: var(--state-crisis); border-color: color-mix(in srgb, var(--state-crisis) 30%, transparent); background: color-mix(in srgb, var(--state-crisis) 10%, white); }
+.cp-role-badge.medical { color: var(--state-alert); border-color: color-mix(in srgb, var(--state-alert) 30%, transparent); background: color-mix(in srgb, var(--state-alert) 10%, white); }
+.cp-role-badge.admin { color: var(--state-command); border-color: color-mix(in srgb, var(--state-command) 30%, transparent); background: color-mix(in srgb, var(--state-command) 10%, white); }
+
+/* ─── Page header ───────────────────────────────────────────────────────────── */
+.cp-page-header {
+  margin-bottom: 2rem;
+}
+
+.cp-page-header .cp-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.72rem;
+}
+
+.cp-page-title {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.cp-page-subtitle {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  color: var(--muted-foreground);
+  max-width: 42rem;
+  line-height: 1.55;
+}
+
+.cp-page-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* ─── Panels & cards ────────────────────────────────────────────────────────── */
+.cp-panel {
+  position: relative;
+  padding: 1.5rem;
+  padding-top: 1.65rem;
+  border-radius: 1.125rem;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.cp-panel-accent {
+  border-color: color-mix(in srgb, var(--state-intelligence) 20%, var(--surface-border));
+}
+
+.cp-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+}
+
+.cp-panel-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.cp-panel-header-row .cp-panel-title {
+  margin-bottom: 0;
+}
+
+/* ─── Stat tiles ─────────────────────────────────────────────────────────────── */
+.cp-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.cp-stat-tile {
+  position: relative;
+  padding: 1.15rem 1.25rem;
+  border-radius: 0.9rem;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(12px);
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.cp-stat-tile:hover {
+  transform: translateY(-2px);
+  border-color: var(--glass-border-highlight);
+  box-shadow: 0 16px 40px -28px rgba(0, 0, 0, 0.5);
+}
+
+.cp-stat-tile-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted-foreground);
+}
+
+.cp-stat-tile-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin-top: 0.35rem;
+  letter-spacing: -0.02em;
+}
+
+.cp-stat-tile-icon {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  opacity: 0.85;
+}
+
+/* ─── Form controls ───────────────────────────────────────────────────────── */
+.cp-label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted-foreground);
+  margin-bottom: 0.4rem;
+}
+
+.cp-input,
+.cp-textarea,
+.cp-select {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  border-radius: 0.65rem;
+  border: 1px solid var(--glass-border);
+  background: oklch(0.12 0.01 260 / 0.8);
+  color: var(--foreground);
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.cp-input:focus,
+.cp-textarea:focus,
+.cp-select:focus {
+  border-color: oklch(0.55 0.12 260 / 0.5);
+  box-shadow: 0 0 0 3px oklch(0.55 0.1 260 / 0.12);
+}
+
+.cp-input-with-icon {
+  padding-left: 2.5rem;
+}
+
+.cp-input-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+
+.cp-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.25rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--primary-foreground);
+  background: linear-gradient(135deg, var(--state-intelligence) 0%, var(--state-command) 100%);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+  box-shadow: 0 8px 24px -8px color-mix(in srgb, var(--state-intelligence) 45%, transparent);
+}
+
+.cp-btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px -8px oklch(0.55 0.14 30 / 0.55);
+}
+
+.cp-btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.cp-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+
+.cp-btn-ghost:hover {
+  color: var(--foreground);
+  background: oklch(1 0 0 / 0.04);
+  border-color: var(--glass-border);
+}
+
+.cp-chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cp-chip {
+  padding: 0.45rem 0.75rem;
+  border-radius: 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid var(--glass-border);
+  background: oklch(1 0 0 / 0.02);
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cp-chip.active {
+  border-color: oklch(0.72 0.1 350 / 0.5);
+  background: oklch(0.88 0.06 350 / 0.55);
+  color: oklch(0.45 0.1 350);
+}
+
+/* ─── List items ────────────────────────────────────────────────────────────── */
+.cp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  max-height: 520px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.cp-list-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border-radius: 0.65rem;
+  border: 1px solid var(--surface-border);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.cp-list-item:hover {
+  border-color: color-mix(in srgb, var(--state-intelligence) 25%, transparent);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.cp-list-meta {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.cp-list-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* ─── Status badges ─────────────────────────────────────────────────────────── */
+.cp-badge {
+  flex-shrink: 0;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.cp-badge.pending {
+  background: oklch(0.58 0.14 30 / 0.15);
+  color: oklch(0.72 0.12 40);
+  border: 1px solid oklch(0.58 0.14 30 / 0.25);
+}
+
+.cp-badge.progress {
+  background: oklch(0.55 0.1 250 / 0.15);
+  color: oklch(0.72 0.08 250);
+  border: 1px solid oklch(0.55 0.1 250 / 0.25);
+}
+
+.cp-badge.resolved {
+  background: oklch(0.55 0.1 150 / 0.15);
+  color: oklch(0.72 0.1 150);
+  border: 1px solid oklch(0.55 0.1 150 / 0.25);
+}
+
+/* ─── Alerts & empty states ─────────────────────────────────────────────────── */
+.cp-alert {
+  padding: 0.75rem 1rem;
+  border-radius: 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.cp-alert.error {
+  background: color-mix(in srgb, var(--state-crisis) 10%, white);
+  border: 1px solid color-mix(in srgb, var(--state-crisis) 30%, transparent);
+  color: color-mix(in srgb, var(--state-crisis) 90%, #4a1020);
+}
+
+.cp-alert.success {
+  background: color-mix(in srgb, var(--state-safe) 12%, white);
+  border: 1px solid color-mix(in srgb, var(--state-safe) 30%, transparent);
+  color: color-mix(in srgb, var(--state-safe) 88%, #0a3028);
+}
+
+.cp-empty {
+  text-align: center;
+  padding: 3.5rem 1.5rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cp-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem;
+  gap: 1rem;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+/* ─── Tool pages (simulation sidebar layout) ────────────────────────────────── */
+.cp-tool-layout {
+  min-height: 100vh;
+  position: relative;
+}
+
+.cp-tool-main {
+  margin-left: 5.5rem;
+  padding: 2rem 2rem 3rem;
+  min-height: 100vh;
+  position: relative;
+  z-index: 10;
+}
+
+@media (max-width: 768px) {
+  .cp-tool-main {
+    margin-left: 0;
+    padding: 5.5rem 1rem 2rem;
+  }
+}
+
+/* Enhanced glass-card (used by simulation/comparison) */
+.glass-card {
+  position: relative;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  backdrop-filter: blur(14px);
+  box-shadow:
+    0 20px 50px -35px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 var(--glass-border-highlight);
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, oklch(1 0 0 / 0.04) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Enhanced sidebar for tool pages */
+.cp-tool-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 5.5rem;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.25rem 0;
+  background: var(--glass-bg);
+  border-right: 1px solid var(--glass-border);
+  backdrop-filter: blur(20px);
+  box-shadow: 4px 0 24px -12px var(--glass-shadow);
+}
+
+.cp-tool-sidebar-logo {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 24px -8px oklch(0.5 0.1 260 / 0.5);
+}
+
+.cp-tool-nav-item {
+  position: relative;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted-foreground);
+  transition: color 0.2s, background 0.2s;
+  margin-bottom: 0.5rem;
+}
+
+.cp-tool-nav-item:hover {
+  color: var(--foreground);
+  background: oklch(1 0 0 / 0.05);
+}
+
+.cp-tool-nav-item.active {
+  color: var(--primary);
+  background: oklch(0.55 0.1 260 / 0.15);
+  border: 1px solid oklch(0.55 0.1 260 / 0.25);
+}

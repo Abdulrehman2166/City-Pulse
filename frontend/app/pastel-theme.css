@@ -1,0 +1,140 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   CityPulse OS — Matte Pastel Theme Overrides
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+html.theme-pastel {
+  color-scheme: light;
+}
+
+/* Hide tactical / dark effects */
+html.theme-pastel .scanline-overlay,
+html.theme-pastel .radar-pulse,
+html.theme-pastel .rotating-ring,
+html.theme-pastel .emergency-indicator,
+html.theme-pastel .reactive-signal,
+html.theme-pastel .galaxy-bg,
+html.theme-pastel .pastel-hud-wrapper {
+  display: none !important;
+}
+
+html.theme-pastel .grid-overlay {
+  background-image:
+    linear-gradient(to right, oklch(0.75 0.04 290 / 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, oklch(0.75 0.04 290 / 0.08) 1px, transparent 1px);
+  opacity: 0.5 !important;
+}
+
+html.theme-pastel .cp-app-vignette {
+  background: linear-gradient(180deg, transparent 0%, oklch(0.92 0.02 290 / 0.25) 100%);
+}
+
+/* Landing & shared brand */
+html.theme-pastel .cp-logo-mark {
+  background: linear-gradient(135deg, oklch(0.78 0.1 350) 0%, oklch(0.82 0.08 55) 100%);
+  box-shadow: 0 4px 14px oklch(0.75 0.08 350 / 0.25);
+}
+
+html.theme-pastel .cp-brand {
+  color: oklch(0.55 0.12 350);
+  opacity: 1;
+}
+
+html.theme-pastel .cp-cta-primary {
+  background: linear-gradient(135deg, oklch(0.72 0.12 350) 0%, oklch(0.78 0.1 55) 100%) !important;
+  color: oklch(0.28 0.04 350) !important;
+  box-shadow: 0 8px 24px oklch(0.72 0.1 350 / 0.28);
+}
+
+html.theme-pastel .cp-cta-primary:hover {
+  box-shadow: 0 12px 28px oklch(0.72 0.1 350 / 0.35);
+}
+
+html.theme-pastel .cp-cta-outline {
+  border-color: oklch(0.72 0.08 350 / 0.35);
+  color: oklch(0.38 0.06 350);
+}
+
+html.theme-pastel .cp-cta-outline:hover {
+  background: oklch(0.72 0.08 350 / 0.08);
+  border-color: oklch(0.65 0.1 350 / 0.5);
+}
+
+html.theme-pastel .cp-btn-ghost,
+html.theme-pastel .cp-btn-primary {
+  border-color: oklch(0.72 0.08 350 / 0.25);
+}
+
+html.theme-pastel .cp-btn-primary {
+  background: linear-gradient(135deg, oklch(0.72 0.12 350), oklch(0.8 0.1 55));
+  color: oklch(0.28 0.04 350);
+}
+
+html.theme-pastel .cp-particle {
+  background: oklch(0.75 0.1 350 / 0.45);
+}
+
+html.theme-pastel .cursor-dot {
+  background: oklch(0.62 0.14 350);
+}
+
+html.theme-pastel .cursor-ring {
+  border-color: oklch(0.72 0.1 350 / 0.45);
+}
+
+html.theme-pastel .scroll-indicator-dot.active {
+  background: oklch(0.62 0.14 350);
+  box-shadow: 0 0 8px oklch(0.72 0.1 350 / 0.4);
+}
+
+html.theme-pastel .cp-card-corner {
+  border-color: oklch(0.72 0.08 350 / 0.25);
+}
+
+html.theme-pastel .text-glow-ember,
+html.theme-pastel .text-glow-neon {
+  text-shadow: none;
+}
+
+html.theme-pastel input:focus {
+  border-color: oklch(0.72 0.1 350 / 0.5) !important;
+  box-shadow: 0 0 0 3px oklch(0.72 0.1 350 / 0.15) !important;
+  background: oklch(0.98 0.01 290) !important;
+}
+
+html.theme-pastel input::placeholder {
+  color: oklch(0.65 0.04 290);
+}
+
+/* Soft floating animation utility */
+@keyframes pastel-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(12px, -18px) scale(1.03); }
+  66% { transform: translate(-8px, 10px) scale(0.98); }
+}
+
+html.theme-pastel .pastel-float {
+  animation: pastel-float 8s ease-in-out infinite;
+}
+
+html.theme-pastel .pastel-float-delayed {
+  animation: pastel-float 10s ease-in-out infinite;
+  animation-delay: -3s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-pastel .pastel-float,
+  html.theme-pastel .pastel-float-delayed {
+    animation: none;
+  }
+}
+
+html.theme-pastel .cp-incident-card,
+html.theme-pastel .cp-alert-badge,
+html.theme-pastel .cp-terminal {
+  background: var(--glass-bg) !important;
+  border-color: var(--glass-border) !important;
+}
+
+html.theme-pastel .cp-section-title {
+  color: var(--foreground);
+}
