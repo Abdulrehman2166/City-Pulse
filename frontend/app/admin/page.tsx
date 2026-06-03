@@ -1,16 +1,19 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { 
-  Flame, ShieldAlert, HeartPulse, Car, Plus, Send, 
-  CheckCircle2, Radio, Activity, Users, LayoutDashboard, 
-  MapPin, FileText, Clock, RefreshCw, AlertCircle,
-  TrendingUp, TrendingDown
+import {
+  Flame, ShieldAlert, HeartPulse, Car, Plus, Send,
+  CheckCircle2, Radio, Activity, Users, LayoutDashboard,
+  MapPin, FileText, Clock, RefreshCw, AlertTriangle,
+  TrendingUp, TrendingDown, Bell, Trash2
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import CinematicCTA from '@/components/CinematicCTA'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
+import { NotificationFeed } from '@/components/app-ui/notification-feed'
+import { ADRDecisionPanel } from '@/components/app-ui/adr-decision-panel'
+import { apiFetch } from '@/lib/api'
 
 export default function AdminDashboard() {
   const [role, setRole] = useState('')
@@ -38,12 +41,12 @@ export default function AdminDashboard() {
 
   async function fetchData() {
     try {
-      const res = await fetch('/api/incidents')
+      const res = await apiFetch('/api/incidents')
       if (res.ok) {
         const data = await res.json()
         setIncidents(data.incidents || [])
-        setStats(prev => ({ 
-          ...prev, 
+        setStats(prev => ({
+          ...prev,
           incidents: data.incidents?.length || 0,
           active: data.incidents?.filter((i: any) => i.status !== 'resolved').length || 0
         }))
@@ -55,13 +58,12 @@ export default function AdminDashboard() {
     }
   }
 
-  // Handle status update for responders
-  async function handleStatusUpdate(id: number, newStatus: string) {
+  // Handle status update
+  async function handleStatusUpdate(id: number | string, newStatus: string) {
     setActionLoading(id.toString())
     try {
-      const res = await fetch(`/api/incidents/${id}/status`, {
+      const res = await apiFetch(`/api/incidents/${id}/status`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
       })
       if (res.ok) {
@@ -80,9 +82,8 @@ export default function AdminDashboard() {
     if (!newLocation.trim()) return
     setIsSubmitting(true)
     try {
-      const res = await fetch('/api/incidents/report', {
+      const res = await apiFetch('/api/incidents/report', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: newType,
           location: newLocation,
@@ -101,6 +102,19 @@ export default function AdminDashboard() {
       console.error('Failed to report incident:', err)
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  async function handleDeleteIncident(incidentId: string | number) {
+    try {
+      const res = await apiFetch(`/api/admin/incidents/${incidentId}`, {
+        method: 'DELETE'
+      })
+      if (res.ok) {
+        fetchData()
+      }
+    } catch (err) {
+      console.error('Failed to delete incident:', err)
     }
   }
 
@@ -357,6 +371,18 @@ export default function AdminDashboard() {
           </p>
         </motion.div>
 
+        {/* Notification Feed for Responder */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="holo-panel p-6 rounded-2xl border border-white/5 bg-[#121426]/60 backdrop-blur-md relative"
+        >
+          <div className="cp-card-corner tl" />
+          <div className="cp-card-corner br" />
+          <NotificationFeed role={role} accentColor={myConfig.color} />
+        </motion.div>
+
         {/* Tactical departmental overview stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {[
@@ -418,13 +444,13 @@ export default function AdminDashboard() {
                     <div>
                       <div className="flex items-center gap-2 mb-3">
                         <span className={`px-2 py-0.5 rounded text-[8px] font-mono font-bold uppercase tracking-wider ${
-                          inc.status === 'resolved' 
+                          normalizeStatusForDisplay(inc.status) === 'resolved' 
                             ? 'bg-emerald-500/20 text-emerald-400' 
-                            : inc.status === 'in progress'
+                            : normalizeStatusForDisplay(inc.status) === 'in progress'
                               ? 'bg-blue-500/20 text-blue-400 animate-pulse'
                               : 'bg-amber-500/20 text-amber-400'
                         }`}>
-                          {inc.status}
+                          {normalizeStatusForDisplay(inc.status)}
                         </span>
                       </div>
 
@@ -445,7 +471,7 @@ export default function AdminDashboard() {
                       </span>
 
                       {/* Status quick trigger buttons */}
-                      {inc.status === 'reported' && (
+                      {normalizeStatusForDisplay(inc.status) === 'reported' && (
                         <button
                           disabled={isResolving}
                           onClick={() => handleStatusUpdate(inc.id, 'in progress')}
@@ -455,7 +481,7 @@ export default function AdminDashboard() {
                         </button>
                       )}
 
-                      {inc.status === 'in progress' && (
+                      {normalizeStatusForDisplay(inc.status) === 'in progress' && (
                         <button
                           disabled={isResolving}
                           onClick={() => handleStatusUpdate(inc.id, 'resolved')}
@@ -465,7 +491,7 @@ export default function AdminDashboard() {
                         </button>
                       )}
 
-                      {inc.status === 'resolved' && (
+                      {normalizeStatusForDisplay(inc.status) === 'resolved' && (
                         <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-400 uppercase">
                           <CheckCircle2 size={12} />
                           Resolved
@@ -491,18 +517,8 @@ export default function AdminDashboard() {
     { label: 'System Kernel', value: 'Online', icon: <Activity size={32} />, color: '#4a8c6f', trend: 100, positive: true },
   ]
 
-  const activityItems = incidents.slice(0, 4).map((inc) => {
-    const cfg = departmentConfig[inc.type as keyof typeof departmentConfig] || departmentConfig.fire
-    return {
-      icon: cfg.icon,
-      text: `${cfg.label} Incident at ${inc.location} is currently ${inc.status}`,
-      time: new Date(inc.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      color: cfg.color
-    }
-  })
-
   // Default Mock data in case no incidents recorded
-  const finalActivityItems = activityItems.length ? activityItems : [
+  const finalActivityItems = incidents.length > 0 ? [] : [
     { icon: <Flame size={20} />, text: 'Fire incident reported — Downtown Sector 7', time: '2m ago', color: '#c8553d' },
     { icon: <Car size={20} />, text: 'Police unit dispatched — Main Street', time: '5m ago', color: '#5272a0' },
     { icon: <HeartPulse size={20} />, text: 'Medical team en route — Central Hospital', time: '8m ago', color: '#4a8c6f' },
@@ -594,46 +610,115 @@ export default function AdminDashboard() {
         }}
       >
         <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--foreground)', marginBottom: '1.5rem' }}>Core Activity Dispatcher</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {finalActivityItems.map((item, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 + i * 0.08, duration: 0.4 }}
-              whileHover={{ x: 4 }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem',
-                padding: '0.875rem 1rem',
-                borderRadius: 10,
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(200,85,61,0.08)',
-                cursor: 'pointer',
-                transition: 'background 0.2s, border-color 0.2s',
-              }}
-            >
-              <div style={{
-                width: 42, height: 42, borderRadius: 10,
-                background: `${item.color}18`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '1.4rem', flexShrink: 0,
-                color: item.color
-              }}>
-                {item.icon}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--foreground)' }}>{item.text}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginTop: 2 }}>{item.time}</div>
-              </div>
-              <div style={{
-                width: 8, height: 8, borderRadius: '50%', background: item.color,
-                animation: 'pulse 2s infinite',
-              }} />
-            </motion.div>
-          ))}
-        </div>
+        {incidents.length > 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {incidents.slice(0, 4).map((inc, i) => {
+              const cfg = departmentConfig[inc.type as keyof typeof departmentConfig] || departmentConfig.fire
+              return (
+                <motion.div
+                  key={inc.id || inc._id || i}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 + i * 0.08, duration: 0.4 }}
+                  whileHover={{ x: 4 }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem',
+                    padding: '0.875rem 1rem',
+                    borderRadius: 10,
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(200,85,61,0.08)',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s, border-color 0.2s',
+                  }}
+                >
+                  <div style={{
+                    width: 42, height: 42, borderRadius: 10,
+                    background: `${cfg.color}18`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '1.4rem', flexShrink: 0,
+                    color: cfg.color
+                  }}>
+                    {cfg.icon}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--foreground)' }}>
+                      {cfg.label} Incident at {inc.location} - {inc.status.charAt(0).toUpperCase() + inc.status.slice(1)}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginTop: 2 }}>
+                      {new Date(inc.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {inc.description ? ` · ${inc.description}` : ''}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteIncident(inc.id || inc._id)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: 'var(--muted-foreground)',
+                      padding: '0.5rem',
+                      borderRadius: 8,
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = '#c8553d'
+                      e.currentTarget.style.background = 'rgba(200,85,61,0.1)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = 'var(--muted-foreground)'
+                      e.currentTarget.style.background = 'none'
+                    }}
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </motion.div>
+              )
+            })}
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {finalActivityItems.map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 + i * 0.08, duration: 0.4 }}
+                whileHover={{ x: 4 }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  padding: '0.875rem 1rem',
+                  borderRadius: 10,
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(200,85,61,0.08)',
+                  cursor: 'pointer',
+                  transition: 'background 0.2s, border-color 0.2s',
+                }}
+              >
+                <div style={{
+                  width: 42, height: 42, borderRadius: 10,
+                  background: `${item.color}18`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '1.4rem', flexShrink: 0,
+                  color: item.color
+                }}>
+                  {item.icon}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--foreground)' }}>{item.text}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginTop: 2 }}>{item.time}</div>
+                </div>
+                <div style={{
+                  width: 8, height: 8, borderRadius: '50%', background: item.color,
+                  animation: 'pulse 2s infinite',
+                }} />
+              </motion.div>
+            ))}
+          </div>
+        )}
       </motion.div>
 
       {/* Response Time + Chart */}
@@ -697,6 +782,83 @@ export default function AdminDashboard() {
           </div>
         </motion.div>
       </div>
+
+      {/* ── ADR Decision Center ─────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 0.5 }}
+        style={{ marginBottom: '2.5rem' }}
+      >
+        <div
+          style={{
+            padding: '2rem',
+            borderRadius: 12,
+            border: '1px solid rgba(200,85,61,0.25)',
+            background: 'linear-gradient(135deg, rgba(24,26,45,0.95) 0%, rgba(14,16,35,0.9) 100%)',
+            backdropFilter: 'blur(8px)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+            <AlertTriangle size={20} style={{ color: '#c8553d' }} className="animate-pulse" />
+            <div>
+              <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--foreground)' }}>
+                Admin Decision Requests (ADR)
+              </div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontFamily: 'monospace', marginTop: 2 }}>
+                Concurrent incident scheduling conflicts requiring admin intervention or auto-resolution
+              </div>
+            </div>
+            <div
+              style={{
+                marginLeft: 'auto',
+                padding: '0.25rem 0.75rem',
+                borderRadius: 20,
+                background: 'rgba(200,85,61,0.15)',
+                border: '1px solid rgba(200,85,61,0.25)',
+                fontSize: '0.7rem',
+                fontFamily: 'monospace',
+                fontWeight: 700,
+                color: '#c8553d',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+              }}
+            >
+              LIVE
+            </div>
+          </div>
+          <ADRDecisionPanel />
+        </div>
+      </motion.div>
+
+      {/* ── Notification Feed (Admin View) ─────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7, duration: 0.5 }}
+        style={{ marginBottom: '2.5rem' }}
+      >
+        <div
+          style={{
+            padding: '2rem',
+            borderRadius: 12,
+            border: '1px solid rgba(82,114,160,0.2)',
+            background: 'linear-gradient(135deg, rgba(24,26,45,0.85) 0%, rgba(24,26,45,0.6) 100%)',
+            backdropFilter: 'blur(8px)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+            <Bell size={20} style={{ color: '#5272a0' }} />
+            <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--foreground)' }}>
+              System Notification Feed
+            </div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontFamily: 'monospace' }}>
+              — All dispatched briefings and ADRs across roles
+            </div>
+          </div>
+          <NotificationFeed role="admin" accentColor="#5272a0" />
+        </div>
+      </motion.div>
 
       {/* Cinematic CTA */}
       <CinematicCTA

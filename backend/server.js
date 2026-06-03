@@ -14,6 +14,9 @@ app.use(express.json());
 
 // Routes
 app.use('/api/simulate', require('./routes/simulate'));
+app.use('/api/realtime', require('./routes/realtime'));
+app.use('/api/auto-optimize', require('./routes/auto-optimize'));
+app.use('/api/system', require('./routes/systemMonitor')); // NEW: System Monitor API!
 // Auth and incident management
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/incidents', require('./routes/incidents'));
@@ -22,6 +25,9 @@ app.use('/api/citizen', require('./routes/citizen'));
 app.use('/api/police', require('./routes/police'));
 app.use('/api/fire', require('./routes/fire'));
 app.use('/api/medical', require('./routes/medical'));
+// Notification & ADR Management
+app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/prioritize', require('./routes/prioritize'));
 
 // Database connection (optional for initial mock testing, but needed for full MERN)
 if (process.env.MONGO_URI) {
@@ -33,7 +39,7 @@ if (process.env.MONGO_URI) {
 }
 
 app.get('/', (req, res) => {
-  res.send('CityPulse OS Backend is running');
+  res.send('CityPulse OS Backend is running 🚀');
 });
 
 app.listen(PORT, () => {

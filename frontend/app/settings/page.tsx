@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useTheme } from 'next-themes'
 import { motion } from 'framer-motion'
 import { 
   Settings as SettingsIcon, Bell, Moon, Sun, Monitor, 
-  Palette, Volume2, VolumeX, Shield, Database, Save, RotateCcw 
+  Palette, Volume2, VolumeX, Shield, Database, Save, RotateCcw, CheckCircle2 
 } from 'lucide-react'
 import { GlassCard } from '@/components/glass-card'
 import Sidebar from '@/components/sidebar'
@@ -52,21 +53,49 @@ function SettingToggle({ label, description, enabled, onToggle, icon }: SettingT
   )
 }
 
-export default function SettingsPage() {
-  const [settings, setSettings] = useState({
-    notifications: true,
-    soundAlerts: true,
-    autoRefresh: true,
-    darkMode: true,
-    highContrast: false,
-    reducedMotion: false,
-  })
+const SETTINGS_KEY = 'citypulse-settings'
+const DEFAULT_SETTINGS = {
+  notifications: true,
+  soundAlerts: true,
+  autoRefresh: true,
+  highContrast: false,
+  reducedMotion: false,
+}
 
-  const [theme, setTheme] = useState<'system' | 'light' | 'dark'>('dark')
+export default function SettingsPage() {
+  const { setTheme, theme, resolvedTheme } = useTheme()
+  const [settings, setSettings] = useState(DEFAULT_SETTINGS)
+  const [saved, setSaved] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+    const savedSettings = localStorage.getItem(SETTINGS_KEY)
+    if (savedSettings) {
+      try {
+        setSettings(JSON.parse(savedSettings))
+      } catch (e) {
+        console.error('Failed to parse settings:', e)
+      }
+    }
+  }, [])
 
   const toggleSetting = (key: keyof typeof settings) => {
     setSettings(prev => ({ ...prev, [key]: !prev[key] }))
   }
+
+  const saveSettings = () => {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings))
+    setSaved(true)
+    setTimeout(() => setSaved(false), 3000)
+  }
+
+  const resetSettings = () => {
+    setSettings(DEFAULT_SETTINGS)
+    setTheme('dark')
+  }
+
+  if (!mounted) return null
 
   return (
     <ToolPageShell>
@@ -104,7 +133,7 @@ export default function SettingsPage() {
                     key={option.value}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => setTheme(option.value as typeof theme)}
+                    onClick={() => setTheme(option.value)}
                     className={cn(
                       'flex items-center justify-center gap-2 p-3 rounded-xl border transition-all',
                       theme === option.value
@@ -187,11 +216,12 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium">Last synchronized</p>
-                  <p className="text-xs text-muted-foreground">Today at 2:34 PM</p>
+                  <p className="text-xs text-muted-foreground">Today at {new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
                 </div>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  onClick={() => {}}
                   className="px-4 py-2 rounded-lg bg-secondary/50 text-sm font-medium hover:bg-secondary transition-colors"
                 >
                   Sync Now
@@ -210,6 +240,7 @@ export default function SettingsPage() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              onClick={resetSettings}
               className="px-6 py-3 rounded-xl bg-secondary/50 text-muted-foreground font-medium hover:bg-secondary transition-colors"
             >
               Reset to Defaults
@@ -217,10 +248,20 @@ export default function SettingsPage() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              onClick={saveSettings}
               className="flex items-center gap-2 px-6 py-3 rounded-xl bg-linear-to-r from-primary to-accent text-primary-foreground font-medium"
             >
-              <Save className="w-4 h-4" />
-              <span>Save Changes</span>
+              {saved ? (
+                <>
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Saved!</span>
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  <span>Save Changes</span>
+                </>
+              )}
             </motion.button>
           </motion.div>
         </div>

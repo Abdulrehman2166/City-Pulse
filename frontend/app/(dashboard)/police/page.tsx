@@ -8,7 +8,7 @@ export default function PoliceDashboard() {
     <div className="relative">
       <ResponderDashboard
         role="police"
-        apiPrefix="/api/police"
+        apiPrefix="http://localhost:5000/api/police"
         stateColor="var(--state-intelligence)"
         eyebrow="Police Operations · Assigned Cases Only"
         title="Police"

@@ -2,17 +2,18 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Activity, CheckCircle2, MapPin, Radio, RefreshCw } from 'lucide-react'
+import { Activity, CheckCircle2, MapPin, Radio, RefreshCw, Bell } from 'lucide-react'
 import { useAutoAnimate } from '@formkit/auto-animate/react'
 import { PageHeader } from './page-header'
 import { Panel } from './panel'
 import { StatGrid, StatTile } from './stat-tile'
 import { StatusBadge } from './status-badge'
+import { NotificationFeed } from './notification-feed'
 import { MotionReveal, MotionRevealItem } from '@/components/pastel/motion-reveal'
 import { StateLegend } from '@/components/pulse/state-legend'
 
 type Incident = {
-  id: number
+  id: string | number
   type: string
   location: string
   description: string
@@ -31,6 +32,8 @@ type ResponderDashboardProps = {
   subtitle: string
   pendingLabel?: string
 }
+
+
 
 export function ResponderDashboard({
   role,
@@ -80,7 +83,7 @@ export function ResponderDashboard({
     }
   }
 
-  async function updateStatus(id: number, status: string) {
+  async function updateStatus(id: string | number, status: string) {
     setActionLoading(String(id))
     setError('')
     try {
@@ -102,8 +105,8 @@ export function ResponderDashboard({
     }
   }
 
-  const pending = incidents.filter(i => i.status !== 'resolved')
-  const completed = incidents.filter(i => i.status === 'resolved')
+  const pending = incidents.filter(i => i.status !== 'resolved' && i.status !== 'completed')
+  const completed = incidents.filter(i => i.status === 'resolved' || i.status === 'completed')
   const [gridRef] = useAutoAnimate({ duration: 320, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' })
 
   return (
@@ -158,7 +161,7 @@ export function ResponderDashboard({
                 >
                   <div className="flex justify-between items-start gap-2">
                     <StatusBadge status={inc.status} />
-                    <span className="cp-list-meta">#00{inc.id}</span>
+                    <span className="cp-list-meta">#{inc.id}</span>
                   </div>
 
                   <div className="mt-3 flex-1">
@@ -178,24 +181,34 @@ export function ResponderDashboard({
                       {new Date(inc.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
 
-                    {inc.status === 'reported' && (
+                    {inc.status === 'assigned' && (
                       <button
                         type="button"
                         disabled={isResolving}
-                        onClick={() => updateStatus(inc.id, 'in progress')}
+                        onClick={() => updateStatus(inc.id, 'dispatched')}
                         className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-blue-600 hover:bg-blue-500 text-white transition-all disabled:opacity-60"
                       >
                         {isResolving ? 'Processing…' : 'Dispatch'}
                       </button>
                     )}
-                    {inc.status === 'in progress' && (
+                    {inc.status === 'dispatched' && (
+                      <button
+                        type="button"
+                        disabled={isResolving}
+                        onClick={() => updateStatus(inc.id, 'arrived')}
+                        className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-amber-600 hover:bg-amber-500 text-white transition-all disabled:opacity-60"
+                      >
+                        {isResolving ? 'Processing…' : 'Mark Arrived'}
+                      </button>
+                    )}
+                    {inc.status === 'arrived' && (
                       <button
                         type="button"
                         disabled={isResolving}
                         onClick={() => updateStatus(inc.id, 'resolved')}
                         className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-emerald-600 hover:bg-emerald-500 text-white transition-all disabled:opacity-60"
                       >
-                        {isResolving ? 'Resolving…' : 'Complete'}
+                        {isResolving ? 'Resolving…' : 'Resolve'}
                       </button>
                     )}
                     {inc.status === 'resolved' && (
@@ -210,6 +223,15 @@ export function ResponderDashboard({
             })}
           </div>
         )}
+      </Panel>
+      </MotionRevealItem>
+
+      <MotionRevealItem>
+      <Panel
+        title="Incoming Briefings"
+        icon={<Bell className="animate-pulse" style={{ color: accentColor }} size={20} />}
+      >
+        <NotificationFeed role={role} accentColor={accentColor} />
       </Panel>
       </MotionRevealItem>
     </MotionReveal>

@@ -148,14 +148,14 @@ function LiveAlertBadge({ type, loc, unit }: { type: string; loc: string; unit: 
       }}
     >
       {/* Glassmorphism background */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        background: `linear-gradient(135deg, ${colors[type]}15 0%, rgba(255,255,255,0.05) 100%)`,
-        backdropFilter: 'blur(10px)',
-        borderRadius: 'inherit',
-        zIndex: 0,
-      }} />
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: `linear-gradient(135deg, ${colors[type]}15 0%, rgba(255,255,255,0.05) 100%)`,
+            backdropFilter: 'blur(4px)',
+            borderRadius: 'inherit',
+            zIndex: 0,
+          }} />
       
       {/* Holographic overlay */}
       <div style={{
@@ -233,7 +233,7 @@ function PriorityWatch() {
         className="cp-panel"
         style={{ 
           background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
-          backdropFilter: 'blur(20px)',
+          backdropFilter: 'blur(4px)',
           border: '1px solid rgba(255,255,255,0.15)',
           boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5), 0 0 40px rgba(200,85,61,0.1)',
           position: 'relative',
@@ -306,7 +306,7 @@ function PriorityWatch() {
                 style={{ 
                   borderColor: `${colors[task.type]}30`,
                   background: `linear-gradient(135deg, ${colors[task.type]}10 0%, rgba(255,255,255,0.03) 100%)`,
-                  backdropFilter: 'blur(10px)',
+                  backdropFilter: 'blur(4px)',
                 }}
               >
                 <motion.div 
@@ -792,14 +792,14 @@ export default function Landing() {
                   }}
                 >
                   {/* Glassmorphism background */}
-                  <div style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: `linear-gradient(135deg, ${inc.color}15 0%, rgba(255,255,255,0.05) 100%)`,
-                    backdropFilter: 'blur(15px)',
-                    borderRadius: 'inherit',
-                    zIndex: 0,
-                  }} />
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: `linear-gradient(135deg, ${inc.color}15 0%, rgba(255,255,255,0.05) 100%)`,
+            backdropFilter: 'blur(4px)',
+            borderRadius: 'inherit',
+            zIndex: 0,
+          }} />
                   
                   {/* Holographic overlay */}
                   <div style={{
@@ -904,16 +904,16 @@ export default function Landing() {
               }}
             >
               {/* Glassmorphism background */}
-              <div style={{
-                position: 'absolute',
-                inset: 0,
-                background: 'linear-gradient(135deg, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.85) 100%)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(156,183,255,0.2)',
-                boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5), 0 0 60px rgba(156,183,255,0.1)',
-                borderRadius: 'inherit',
-                zIndex: 0,
-              }} />
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(135deg, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.85) 100%)',
+            backdropFilter: 'blur(4px)',
+            border: '1px solid rgba(156,183,255,0.2)',
+            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5), 0 0 60px rgba(156,183,255,0.1)',
+            borderRadius: 'inherit',
+            zIndex: 0,
+          }} />
               
               {/* Holographic overlay */}
               <div style={{

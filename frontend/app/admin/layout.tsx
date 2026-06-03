@@ -21,15 +21,18 @@ import {
   Bell,
   X,
   AlertOctagon,
-  ChevronRight
+  ChevronRight,
+  CheckCircle
 } from 'lucide-react'
 import { PulseBackground } from '@/components/pulse/pulse-background'
 import { CityPulseLogo } from '@/components/citypulse-logo'
+import { apiFetch } from '@/lib/api'
 
 // Core Modules configuration
 const MODULES = [
   { id: 'analytics', label: 'Tactical Analytics', path: '/admin', icon: LayoutDashboard, desc: 'Live tactical efficiency and resource overview' },
   { id: 'incidents', label: 'Incident Monitoring', path: '/admin/incidents', icon: AlertCircle, desc: 'Real-time incident feed and dispatch queue' },
+  { id: 'resolved', label: 'Resolved Cases', path: '/admin/resolved', icon: CheckCircle, desc: 'Archived incident records and resolution history' },
   { id: 'simulation', label: 'AI Dispatch Simulation', path: '/simulation', icon: Activity, desc: 'Run OS scheduler algorithms on dispatch loads' },
   { id: 'algorithms', label: 'Scheduling Algorithms', path: '/comparison', icon: TerminalIcon, desc: 'Analyze scheduling performance metrics' },
   { id: 'users', label: 'User & Role Management', path: '/admin/users', icon: Users, desc: 'Access list, permissions, and operator assignments' },
@@ -46,6 +49,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [isEmergencyOpen, setIsEmergencyOpen] = useState(false)
   const [time, setTime] = useState('')
   const [telemetry, setTelemetry] = useState({ ping: 18, cpu: 32, mem: 44 })
+  const [unreadCount, setUnreadCount] = useState(0)
   const [alerts, setAlerts] = useState<string[]>([
     '[SEC-4] Fire Incident reported at Downtown Sector 7',
     '[SYS-OS] Dispatch scheduler loaded SJF algorithm',
@@ -92,6 +96,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, [])
 
+  // Live notification unread count poll
+  useEffect(() => {
+    async function fetchCount() {
+      const token = localStorage.getItem('token')
+      if (!token) return
+      try {
+        const res = await apiFetch('/api/notifications/count')
+        if (res.ok) {
+          const body = await res.json()
+          setUnreadCount(body.count || 0)
+          // Also push live notification into ticker if there's a new one
+          if (body.count > 0) {
+            const ts = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+            setAlerts(prev => [`[${ts}] [NOTIF] ${body.count} unread notification(s) in system feed`, ...prev.slice(0, 5)])
+          }
+        }
+      } catch { /* ignore */ }
+    }
+    fetchCount()
+    const notifInterval = setInterval(fetchCount, 10000)
+    return () => clearInterval(notifInterval)
+  }, [])
+
   // Auth and selective access
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -102,7 +129,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       setRole(userRole || '')
       
       // Route protection: non-admins cannot access admin only paths
-      const adminOnlyPaths = ['/admin/users', '/admin/roles', '/admin/settings']
+      const adminOnlyPaths = ['/admin/users', '/admin/roles', '/admin/settings', '/admin/resolved']
       if (userRole !== 'admin' && adminOnlyPaths.some(p => pathname.startsWith(p))) {
         router.push('/admin')
       } else {
@@ -132,7 +159,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // Filter modules based on role (non-admins get selective access)
   const filteredModules = MODULES.filter(mod => {
     if (role === 'admin') return true
-    if (['/admin/users', '/admin/settings'].includes(mod.path)) {
+    if (['/admin/users', '/admin/settings', '/admin/resolved'].includes(mod.path)) {
       return false
     }
     return true
@@ -254,6 +281,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* ── Bottom-Right Rotating Vector Radar Grid ─────────────────── */}
       <div className="fixed bottom-6 right-6 z-40 hidden lg:flex flex-col items-center gap-2">
+        {/* Unread notification count badge */}
+        {unreadCount > 0 && (
+          <motion.button
+            onClick={() => router.push('/admin')}
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-[#c8553d]/90 text-white text-[9px] font-bold font-mono uppercase tracking-widest shadow-[0_0_12px_rgba(200,85,61,0.5)] cursor-pointer"
+          >
+            <Bell size={10} className="animate-pulse" />
+            {unreadCount} NEW
+          </motion.button>
+        )}
         <div className="w-20 h-20 rounded-full border border-[rgba(200,85,61,0.15)] relative overflow-hidden bg-black/40 backdrop-blur-md">
           {/* Radar Sweep Line */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(200,85,61,0.05)_0%,transparent_70%)]" />

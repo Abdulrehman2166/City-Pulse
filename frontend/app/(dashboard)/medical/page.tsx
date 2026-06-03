@@ -8,7 +8,7 @@ export default function MedicalDashboard() {
     <div className="relative">
       <ResponderDashboard
         role="medical"
-        apiPrefix="/api/medical"
+        apiPrefix="http://localhost:5000/api/medical"
         stateColor="var(--state-alert)"
         accentColor="var(--state-alert)"
         dotColor="var(--state-alert)"

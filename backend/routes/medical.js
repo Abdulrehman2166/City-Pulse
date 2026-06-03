@@ -10,8 +10,8 @@ router.use(authenticate, authorize('medical'));
 router.get(
   '/incidents',
   requirePermissions(PERMISSIONS.MEDICAL_INCIDENT_READ_ASSIGNED),
-  (req, res) => {
-    const incidents = store.listAssignedIncidents('medical', req.user.id);
+  async (req, res) => {
+    const incidents = await store.listAssignedIncidents('medical', req.user.id);
     res.json({ incidents });
   }
 );
@@ -19,8 +19,8 @@ router.get(
 router.put(
   '/incidents/:id/status',
   requirePermissions(PERMISSIONS.MEDICAL_INCIDENT_UPDATE_ASSIGNED),
-  (req, res) => {
-    const incident = store.getIncidentById(req.params.id);
+  async (req, res) => {
+    const incident = await store.getIncidentById(req.params.id);
     if (!incident) return res.status(404).json({ message: 'Incident not found' });
 
     if (incident.type !== 'medical' || incident.assignedUserIds?.medical !== req.user.id) {
@@ -30,16 +30,17 @@ router.put(
     const { status } = req.body || {};
     if (!status) return res.status(400).json({ message: 'status required' });
 
-    store.updateIncidentStatus(incident, status, { role: req.user.role, id: req.user.id, username: req.user.username });
-    res.json({ incident });
+    const updatedIncident = await store.updateIncidentStatus(incident, status, { role: req.user.role, id: req.user.id, username: req.user.username });
+    res.json({ incident: updatedIncident });
   }
 );
 
 router.get(
   '/analytics',
   requirePermissions(PERMISSIONS.MEDICAL_ANALYTICS_READ),
-  (req, res) => {
-    res.json({ stats: store.statsForRole('medical', req.user.id) });
+  async (req, res) => {
+    const stats = await store.statsForRole('medical', req.user.id);
+    res.json({ stats });
   }
 );
 

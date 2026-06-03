@@ -16,6 +16,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+debug-server.log
+test-output.log
+*.log
 
 # Build outputs
 dist/

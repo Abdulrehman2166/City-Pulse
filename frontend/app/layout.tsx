@@ -7,6 +7,7 @@ import { GlobalHUD } from '@/components/GlobalHUD'
 import Scene3D from '@/components/scene-3d'
 import CustomCursor from '@/components/CustomCursor'
 import { CursorTrail } from '@/components/CursorTrail'
+import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
 const manrope = Manrope({
@@ -72,19 +73,26 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`theme-pulse bg-background ${manrope.variable} ${sora.variable} ${jetbrainsMono.variable} ${caveat.variable}`}>
+    <html lang="en" className={`theme-pulse ${manrope.variable} ${sora.variable} ${jetbrainsMono.variable} ${caveat.variable}`} suppressHydrationWarning>
       <body className={`${manrope.className} font-sans antialiased min-h-screen`}>
-        <CustomCursor />
-        <CursorTrail />
-        <Scene3D />
-        <SmoothScroll>
-          <GlobalHUD>
-            <PageTransition>
-              {children}
-            </PageTransition>
-          </GlobalHUD>
-        </SmoothScroll>
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <CustomCursor />
+          <CursorTrail />
+          <Scene3D />
+          <SmoothScroll>
+            <GlobalHUD>
+              <PageTransition>
+                {children}
+              </PageTransition>
+            </GlobalHUD>
+          </SmoothScroll>
+          {process.env.NODE_ENV === 'production' && <Analytics />}
+        </ThemeProvider>
       </body>
     </html>
   )

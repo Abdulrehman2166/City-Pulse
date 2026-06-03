@@ -143,8 +143,8 @@
   padding: 0.6rem 1.2rem;
   border: 1px solid rgba(200, 168, 255, 0.24);
   border-radius: 6px;
-  background: rgba(26, 22, 38, 0.72);
-  backdrop-filter: blur(12px);
+  background: rgba(27, 22, 39, 0.72);
+  backdrop-filter: blur(4px);
   color: var(--foreground);
   font-weight: 500;
   cursor: pointer;
@@ -181,8 +181,8 @@
   padding: 0.5rem 1rem;
   border: 1px solid rgba(200, 168, 255, 0.24);
   border-radius: 6px;
-  background: rgba(26, 22, 38, 0.72);
-  backdrop-filter: blur(12px);
+  background: rgba(27, 22, 39, 0.72);
+  backdrop-filter: blur(4px);
   color: var(--muted-foreground);
   font-size: 0.85rem;
   cursor: pointer;
@@ -435,7 +435,7 @@
   border: 1px solid;
   border-radius: 8px;
   background: rgba(27, 22, 39, 0.72);
-  backdrop-filter: blur(14px);
+  backdrop-filter: blur(4px);
   position: relative;
   overflow: hidden;
 }
@@ -493,7 +493,7 @@
   border-radius: 12px;
   background: rgba(25, 21, 36, 0.72);
   border: 1px solid rgba(214, 197, 244, 0.1);
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(4px);
 }
 
 .cp-stat {

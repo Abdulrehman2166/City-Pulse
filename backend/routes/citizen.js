@@ -11,11 +11,11 @@ router.use(authenticate, authorize('citizen'));
 router.post(
   '/incidents',
   requirePermissions(PERMISSIONS.CITIZEN_INCIDENT_CREATE),
-  (req, res) => {
+  async (req, res) => {
     const { type, location, description } = req.body || {};
     if (!type || !location) return res.status(400).json({ message: 'type and location required' });
 
-    const incident = store.createIncident({
+    const incident = await store.createIncident({
       type,
       location,
       description,
@@ -30,8 +30,8 @@ router.post(
 router.get(
   '/incidents',
   requirePermissions(PERMISSIONS.CITIZEN_INCIDENT_READ_OWN),
-  (req, res) => {
-    const incidents = store.listCitizenIncidents(req.user.id);
+  async (req, res) => {
+    const incidents = await store.listCitizenIncidents(req.user.id);
     res.json({ incidents });
   }
 );
@@ -40,8 +40,9 @@ router.get(
 router.get(
   '/analytics',
   requirePermissions(PERMISSIONS.CITIZEN_ANALYTICS_READ_OWN),
-  (req, res) => {
-    res.json({ stats: store.statsForCitizen(req.user.id) });
+  async (req, res) => {
+    const stats = await store.statsForCitizen(req.user.id);
+    res.json({ stats });
   }
 );
 

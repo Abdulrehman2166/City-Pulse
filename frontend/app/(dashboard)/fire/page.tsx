@@ -8,7 +8,7 @@ export default function FireDashboard() {
     <div className="relative">
       <ResponderDashboard
         role="fire"
-        apiPrefix="/api/fire"
+        apiPrefix="http://localhost:5000/api/fire"
         stateColor="var(--state-crisis)"
         accentColor="var(--state-crisis)"
         dotColor="var(--state-crisis)"

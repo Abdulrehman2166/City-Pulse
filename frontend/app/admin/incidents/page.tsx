@@ -3,12 +3,12 @@
 import { useEffect, useState } from 'react'
 import { Trash2, Flame, ShieldAlert, HeartPulse, Car, AlertTriangle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { apiFetch } from '@/lib/api'
 
 const TYPE_META: Record<string, { icon: React.ReactNode; color: string }> = {
   fire:           { icon: <Flame size={20} />, color: '#c8553d' },
-  crime:          { icon: <ShieldAlert size={20} />, color: '#c9893a' },
+  police:         { icon: <ShieldAlert size={20} />, color: '#c9893a' },
   medical:        { icon: <HeartPulse size={20} />, color: '#4a8c6f' },
-  accident:       { icon: <Car size={20} />, color: '#7b6fa8' },
   infrastructure: { icon: <AlertTriangle size={20} />, color: '#5272a0' },
 }
 
@@ -43,7 +43,7 @@ export default function IncidentsPage() {
 
   async function fetchIncidents() {
     try {
-      const res = await fetch('/api/incidents')
+      const res = await apiFetch('/api/incidents')
       if (res.ok) {
         const data = await res.json()
         setIncidents(data.incidents || [])
@@ -58,9 +58,8 @@ export default function IncidentsPage() {
   async function handleReport(e: React.FormEvent) {
     e.preventDefault()
     try {
-      const res = await fetch('/api/incidents/report', {
+      const res = await apiFetch('/api/incidents/report', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newIncident)
       })
       if (res.ok) {
@@ -69,6 +68,19 @@ export default function IncidentsPage() {
       }
     } catch (err) {
       console.error('Error reporting:', err)
+    }
+  }
+
+  async function handleDelete(incidentId: string) {
+    try {
+      const res = await apiFetch(`/api/admin/incidents/${incidentId}`, {
+        method: 'DELETE'
+      })
+      if (res.ok) {
+        fetchIncidents()
+      }
+    } catch (err) {
+      console.error('Error deleting:', err)
     }
   }
 
@@ -99,9 +111,8 @@ export default function IncidentsPage() {
                 style={{ ...inputStyle, cursor: 'pointer' }}
               >
                 <option value="fire">Fire</option>
-                <option value="crime">Crime</option>
+                <option value="police">Police</option>
                 <option value="medical">Medical</option>
-                <option value="accident">Accident</option>
                 <option value="infrastructure">Infrastructure</option>
               </select>
             </div>
@@ -152,7 +163,7 @@ export default function IncidentsPage() {
                   const meta = TYPE_META[incident.type] || TYPE_META.infrastructure
                   return (
                     <motion.div
-                      key={incident.id || idx}
+                      key={incident.id || incident._id || idx}
                       initial={{ opacity: 0, x: -16 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 16 }}
@@ -174,8 +185,9 @@ export default function IncidentsPage() {
                         {meta.icon}
                       </div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--foreground)' }}>{incident.title || `${incident.type} reported`}</div>
+                        <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--foreground)' }}>{incident.type.toUpperCase()}</div>
                         <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginTop: 2 }}>{incident.location} • {new Date(incident.createdAt).toLocaleString()}</div>
+                        {incident.description && <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', marginTop: 2 }}>{incident.description}</div>}
                       </div>
                       <span style={{
                         padding: '0.25rem 0.6rem',
@@ -190,12 +202,7 @@ export default function IncidentsPage() {
                         {incident.status || 'pending'}
                       </span>
                       <button
-                        onClick={async () => {
-                          try {
-                            await fetch(`/api/incidents/${incident.id}/delete`, { method: 'DELETE' })
-                            fetchIncidents()
-                          } catch (err) { console.error(err) }
-                        }}
+                        onClick={() => handleDelete(incident.id || incident._id)}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted-foreground)', transition: 'color 0.2s', padding: 4 }}
                         onMouseEnter={(e) => (e.currentTarget.style.color = '#c8553d')}
                         onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted-foreground)')}

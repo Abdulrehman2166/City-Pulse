@@ -119,23 +119,23 @@ exports.roundRobin = (incidents, timeQuantum = 2) => {
   let queue = [];
   let n = processes.length;
   let completedCount = 0;
-  
+
   if (n === 0) return { timeline: [], results: [], metrics: calculateMetrics([]) };
-  
+
   let pIdx = 0;
-  
+
   // Initialize queue with processes that arrive at t=0
   while (pIdx < n && processes[pIdx].arrivalTime <= currentTime) {
     queue.push(processes[pIdx]);
     pIdx++;
   }
-  
+
   if (queue.length === 0) {
     currentTime = processes[0].arrivalTime;
     queue.push(processes[pIdx]);
     pIdx++;
   }
-  
+
   while (completedCount < n) {
     if (queue.length === 0) {
       currentTime = processes[pIdx].arrivalTime;
@@ -144,22 +144,22 @@ exports.roundRobin = (incidents, timeQuantum = 2) => {
         pIdx++;
       }
     }
-    
+
     let currentProcess = queue.shift();
     let start = currentTime;
-    
+
     let executeTime = Math.min(currentProcess.remainingTime, timeQuantum);
     currentProcess.remainingTime -= executeTime;
     currentTime += executeTime;
-    
+
     timeline.push({ id: currentProcess._id, start, end: currentTime });
-    
+
     // Check if new processes arrived during execution
     while (pIdx < n && processes[pIdx].arrivalTime <= currentTime) {
       queue.push(processes[pIdx]);
       pIdx++;
     }
-    
+
     if (currentProcess.remainingTime > 0) {
       queue.push(currentProcess);
     } else {
@@ -169,7 +169,7 @@ exports.roundRobin = (incidents, timeQuantum = 2) => {
       completedCount++;
     }
   }
-  
+
   // Merge consecutive timeline blocks for same process
   let mergedTimeline = [];
   if (timeline.length > 0) {
@@ -184,8 +184,60 @@ exports.roundRobin = (incidents, timeQuantum = 2) => {
     }
     mergedTimeline.push(currentBlock);
   }
-  
+
   return { timeline: mergedTimeline, results: processes, metrics: calculateMetrics(processes) };
+};
+
+// 5. Shortest Remaining Time First (SRTF) - Preemptive
+exports.srtf = (incidents) => {
+  let processes = [...incidents].map(p => ({...p, remainingTime: p.burstTime}));
+  let timeline = [];
+  let currentTime = 0;
+  let completedCount = 0;
+  let n = processes.length;
+  let lastProcess = null;
+
+  if (n === 0) return { timeline: [], results: [], metrics: calculateMetrics([]) };
+
+  while (completedCount < n) {
+    // Find available processes that have arrived and not completed
+    let available = processes.filter(p => p.arrivalTime <= currentTime && !p.completionTime === undefined);
+
+    if (available.length > 0) {
+      // Select process with shortest remaining time
+      available.sort((a, b) => a.remainingTime - b.remainingTime);
+      let currentProcess = available[0];
+
+      // Start new timeline block if switching processes
+      if (lastProcess !== currentProcess._id) {
+        timeline.push({ id: currentProcess._id, start: currentTime, end: null });
+        lastProcess = currentProcess._id;
+      }
+
+      // Execute for 1 time unit
+      currentProcess.remainingTime--;
+      currentTime++;
+
+      // Check if completed
+      if (currentProcess.remainingTime === 0) {
+        currentProcess.completionTime = currentTime;
+        currentProcess.turnaroundTime = currentProcess.completionTime - currentProcess.arrivalTime;
+        currentProcess.waitingTime = currentProcess.turnaroundTime - currentProcess.burstTime;
+        completedCount++;
+        lastProcess = null;
+      }
+
+      // Update last timeline end time
+      if (timeline.length > 0) {
+        timeline[timeline.length - 1].end = currentTime;
+      }
+    } else {
+      // No process available - jump to next arrival
+      currentTime++;
+    }
+  }
+
+  return { timeline, results: processes, metrics: calculateMetrics(processes) };
 };
 
 function getInitialQueueLevel(priority) {
@@ -309,6 +361,8 @@ exports.dispatch = ({ incidents, algorithm, timeQuantum, options }) => {
       return exports.roundRobin(incidents, timeQuantum);
     case 'mlfq':
       return exports.mlfq(incidents, options);
+    case 'srtf':
+      return exports.srtf(incidents);
     default:
       throw new Error(`Unsupported scheduling algorithm: ${algorithm}`);
   }

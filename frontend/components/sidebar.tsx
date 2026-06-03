@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Activity, LayoutDashboard, Play, BarChart3, Settings, Zap, Home } from 'lucide-react'
+import { Activity, LayoutDashboard, Play, BarChart3, Settings, Zap, Home, Cpu } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -10,6 +10,7 @@ import { CityPulseLogo } from '@/components/citypulse-logo'
 const navItems = [
   { href: '/landing', icon: Home, label: 'Home' },
   { href: '/simulation', icon: Play, label: 'Simulation' },
+  { href: '/system', icon: Cpu, label: 'System Monitor' },
   { href: '/comparison', icon: BarChart3, label: 'Compare' },
   { href: '/admin', icon: LayoutDashboard, label: 'Admin' },
   { href: '/settings', icon: Settings, label: 'Settings' },

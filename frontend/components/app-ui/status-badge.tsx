@@ -4,10 +4,10 @@ export type SystemState = 'crisis' | 'disruption' | 'monitoring' | 'stable' | 'i
 
 export function statusVariant(status: string): 'pending' | 'progress' | 'resolved' | 'crisis' | 'monitoring' {
   const s = status.toLowerCase()
-  if (s === 'resolved') return 'resolved'
-  if (s === 'in progress' || s === 'in_progress' || s === 'en route' || s === 'enroute') return 'progress'
+  if (s === 'resolved' || s === 'completed') return 'resolved'
+  if (['assigned', 'dispatched', 'arrived'].includes(s)) return 'progress'
   if (s === 'critical' || s === 'emergency') return 'crisis'
-  if (s === 'reported' || s === 'pending' || s === 'queued') return 'pending'
+  if (s === 'received') return 'pending'
   return 'monitoring'
 }
 
@@ -20,9 +20,12 @@ const variantClass: Record<ReturnType<typeof statusVariant>, string> = {
 }
 
 export function StatusBadge({ status, className }: { status: string; className?: string }) {
+  // Capitalize first letter for display
+  const displayStatus = status.charAt(0).toUpperCase() + status.slice(1)
+
   return (
     <span className={cn('cp-badge', variantClass[statusVariant(status)], className)}>
-      {status}
+      {displayStatus}
     </span>
   )
 }

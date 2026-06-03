@@ -8,14 +8,16 @@ import { useAutoAnimate } from '@formkit/auto-animate/react'
 import { PageHeader, Panel, StatusBadge } from '@/components/app-ui'
 import { MotionReveal, MotionRevealItem } from '@/components/pastel/motion-reveal'
 import { StateLegend } from '@/components/pulse/state-legend'
+import { apiFetch } from '@/lib/api'
 
 type Incident = {
-  id: number
+  id: string | number
   type: string
   location: string
   description: string
   status: string
   createdAt: string
+  etaMinutes: number | null
 }
 
 export default function CitizenDashboard() {
@@ -50,9 +52,7 @@ export default function CitizenDashboard() {
     setError('')
     setLoading(true)
     try {
-      const res = await fetch('/api/citizen/incidents', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      })
+      const res = await apiFetch('/api/citizen/incidents')
       const body = await res.json()
       if (!res.ok) throw new Error(body.message || 'Failed to load incidents')
       setIncidents(body.incidents || [])
@@ -69,12 +69,8 @@ export default function CitizenDashboard() {
     setIsSubmitting(true)
     setError('')
     try {
-      const res = await fetch('/api/citizen/incidents', {
+      const res = await apiFetch('/api/citizen/incidents', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
         body: JSON.stringify({ type: newType, location: newLocation, description: newDesc }),
       })
       const body = await res.json()
@@ -205,13 +201,18 @@ export default function CitizenDashboard() {
                 {incidents.map(inc => (
                   <div key={inc.id} className="cp-list-item">
                     <div>
-                      <div className="cp-list-meta">ID: 00{inc.id} · {inc.type.toUpperCase()}</div>
+                      <div className="cp-list-meta">ID: {inc.id} · {inc.type.toUpperCase()}</div>
                       <div className="cp-list-title">
                         <MapPin size={12} className="text-primary" />
                         {inc.location}
                       </div>
+                      {inc.etaMinutes && (
+                        <p className="text-xs text-emerald-400 mt-1">
+                          Estimated arrival: {inc.etaMinutes} minute{inc.etaMinutes !== 1 ? 's' : ''}
+                        </p>
+                      )}
                       {inc.description && (
-                        <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2">{inc.description}</p>
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{inc.description}</p>
                       )}
                     </div>
                     <StatusBadge status={inc.status} />
